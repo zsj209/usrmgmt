@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hrocloud.usrmgmt.dao.RoleInfoMapper">
+	<resultMap id="BaseResultMap" type="com.hrocloud.usrmgmt.model.RoleInfo">
+		<id column="id" jdbcType="INTEGER" property="id" />
+		<result column="create_by" jdbcType="INTEGER" property="createBy" />
+		<result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+		<result column="update_by" jdbcType="INTEGER" property="updateBy" />
+		<result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+		<result column="termination_time" jdbcType="TIMESTAMP"
+			property="terminationTime" />
+		<result column="company_id" jdbcType="INTEGER" property="companyId" />
+		<result column="role_name" jdbcType="VARCHAR" property="roleName" />
+		<result column="enabled" jdbcType="VARCHAR" property="enabled" />
+		<result column="type" jdbcType="VARCHAR" property="type" />
+		<result column="memo" jdbcType="VARCHAR" property="memo" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, create_by, create_time, update_by, update_time,termination_time,
+		company_id, role_name, enabled, type,
+		memo
+	</sql>
+
+
+	<!-- 删除角色信息 -->
+	<delete id="deleteRole" parameterType="java.util.List">
+		delete from role_info
+		where id in
+		<foreach collection="list" open="(" close=")" separator=","
+			item="id">
+			#{id}
+		</foreach>
+	</delete>
+	<!-- 修改角色状态 -->
+	<update id="modifyEnabled">
+		update role_info
+		<set>
+			<if test="enabled != null">
+				enabled = #{enabled,jdbcType=VARCHAR},
+			</if>
+				termination_time = #{terminationTime,jdbcType=TIMESTAMP},
+		</set>
+		where id in
+		<foreach collection="list" open="(" close=")" separator=","
+			item="id">
+			#{id}
+		</foreach>
+	</update>
+
+	<select id="getAllRolePage" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from role_info n
+		<where>
+			<if test="dataMap != null">
+				<if test="dataMap.roleName != null and dataMap.roleName != ''">
+					n.role_name LIKE CONCAT(CONCAT('%',
+					#{dataMap.roleName}),'%')
+				</if>
+				<if test="dataMap.enabled != null and dataMap.enabled != ''">
+					AND n.enabled = #{dataMap.enabled}
+				</if>
+			</if>
+
+		</where>
+		order by id
+	</select>
+
+
+
+
+
+	<select id="selectByPrimaryKey" parameterType="java.lang.Integer"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from role_info
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from role_info
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	<insert id="insert" parameterType="com.hrocloud.usrmgmt.model.RoleInfo">
+		insert into role_info (id, create_by, create_time,
+		update_by, update_time,termination_time, company_id,
+		role_name, enabled,type, memo
+		)
+		values (#{id,jdbcType=INTEGER}, #{createBy,jdbcType=INTEGER},
+		#{createTime,jdbcType=TIMESTAMP},
+		#{updateBy,jdbcType=INTEGER},
+		#{updateTime,jdbcType=TIMESTAMP},
+		#{terminationTime,jdbcType=TIMESTAMP},
+		#{companyId,jdbcType=INTEGER},
+		#{roleName,jdbcType=VARCHAR}, #{enabled,jdbcType=TINYINT},
+		#{memo,jdbcType=VARCHAR},#{type,jdbcType=VARCHAR}
+		)
+	</insert>
+	<insert id="insertSelective" parameterType="com.hrocloud.usrmgmt.model.RoleInfo">
+		insert into role_info
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="createBy != null">
+				create_by,
+			</if>
+			<if test="createTime != null">
+				create_time,
+			</if>
+			<if test="updateBy != null">
+				update_by,
+			</if>
+			<if test="updateTime != null">
+				update_time,
+			</if>
+			<if test="terminationTime != null">
+				termination_time,
+			</if>
+			<if test="companyId != null">
+				company_id,
+			</if>
+			<if test="roleName != null">
+				role_name,
+			</if>
+			<if test="enabled != null">
+				enabled,
+			</if>
+			<if test="memo != null">
+				memo,
+			</if>
+			<if test="type != null">
+				type,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=INTEGER},
+			</if>
+			<if test="createBy != null">
+				#{createBy,jdbcType=INTEGER},
+			</if>
+			<if test="createTime != null">
+				#{createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="updateBy != null">
+				#{updateBy,jdbcType=INTEGER},
+			</if>
+			<if test="updateTime != null">
+				#{updateTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="terminationTime != null">
+				#{terminationTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="companyId != null">
+				#{companyId,jdbcType=INTEGER},
+			</if>
+			<if test="roleName != null">
+				#{roleName,jdbcType=VARCHAR},
+			</if>
+			<if test="enabled != null">
+				#{enabled,jdbcType=TINYINT},
+			</if>
+			<if test="memo != null">
+				#{memo,jdbcType=VARCHAR},
+			</if>
+			<if test="type != null">
+				#{type,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="com.hrocloud.usrmgmt.model.RoleInfo">
+		update role_info
+		<set>
+			<if test="createBy != null">
+				create_by = #{createBy,jdbcType=INTEGER},
+			</if>
+			<if test="createTime != null">
+				create_time = #{createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="updateBy != null">
+				update_by = #{updateBy,jdbcType=INTEGER},
+			</if>
+			<if test="updateTime != null">
+				update_time = #{updateTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="terminationTime != null">
+				termination_time = #{terminationTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="companyId != null">
+				company_id = #{companyId,jdbcType=INTEGER},
+			</if>
+			<if test="roleName != null">
+				role_name = #{roleName,jdbcType=VARCHAR},
+			</if>
+			<if test="enabled != null">
+				enabled = #{enabled,jdbcType=TINYINT},
+			</if>
+			<if test="memo != null">
+				memo = #{memo,jdbcType=VARCHAR},
+			</if>
+			<if test="type != null">
+				type = #{type,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.hrocloud.usrmgmt.model.RoleInfo">
+		update role_info
+		set create_by = #{createBy,jdbcType=INTEGER},
+		create_time = #{createTime,jdbcType=TIMESTAMP},
+		update_by = #{updateBy,jdbcType=INTEGER},
+		update_time = #{updateTime,jdbcType=TIMESTAMP},
+		termination_time = #{terminationTime,jdbcType=TIMESTAMP},
+		company_id = #{companyId,jdbcType=INTEGER},
+		role_name = #{roleName,jdbcType=VARCHAR},
+		enabled = #{enabled,jdbcType=TINYINT},
+		memo = #{memo,jdbcType=VARCHAR},
+		type = #{type,jdbcType=VARCHAR}
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+</mapper>

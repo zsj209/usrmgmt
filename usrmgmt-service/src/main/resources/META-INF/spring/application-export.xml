@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--suppress InjectionValueTypeInspection -->
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo" xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+"
+       default-lazy-init="false">
+<!-- 提供的网关服务 -->
+    <dubbo:service interface="com.hrocloud.apigw.client.service.SecurityService"
+                   ref="securityService" version="${dubbo.version}" delay="-1"
+                   timeout="3000"/>
+
+    <dubbo:service interface="com.hrocloud.usrmgmt.api.UserAgwService"
+                   ref="userAgwService" version="${dubbo.version}" delay="-1" timeout="3000"/>
+                   
+    <dubbo:service interface="com.hrocloud.usrmgmt.api.CaptchaAgwService"
+                   ref="captchaAgwService" version="${dubbo.version}" delay="-1" timeout="3000"/>
+
+    <dubbo:service interface="com.hrocloud.usrmgmt.api.NodeAgwService"
+                   ref="nodeAgwServiceImpl" version="${dubbo.version}" delay="-1" timeout="3000"/>
+                   
+    <dubbo:service interface="com.hrocloud.usrmgmt.api.ButtonAgwService"
+                   ref="buttonAgwServiceImpl" version="${dubbo.version}" delay="-1" timeout="3000"/>
+                   
+    <dubbo:service interface="com.hrocloud.usrmgmt.api.UserAgwUtils"
+                   ref="userAgwUtilsImpl" version="${dubbo.version}" delay="-1" timeout="3000"/>
+                   
+    <dubbo:service interface="com.hrocloud.usrmgmt.api.RoleAgwService"
+                   ref="roleAgwServiceImpl" version="${dubbo.version}" delay="-1" timeout="3000"/>
+                   
+    <dubbo:service interface="com.hrocloud.usrmgmt.api.RoleNodeAgwService"
+                   ref="roleNodeAgwService" version="${dubbo.version}" delay="-1" timeout="3000"/>
+                   
+    <dubbo:service interface="com.hrocloud.usrmgmt.api.RoleButtonAgwService"
+                   ref="roleButtonAgwService" version="${dubbo.version}" delay="-1" timeout="3000"/>
+<!-- 调用的dubbo服务 -->
+    <dubbo:reference id="commParamInfoService" interface="com.hrocloud.common.api.CommParamInfoService" version="${dubbo.version}" check="false"/>
+    <dubbo:reference id="companyService" interface="com.hrocloud.company.api.CompanyService" version="${dubbo.version}" check="false"/>
+    <dubbo:reference id="PostService" interface="com.hrocloud.company.api.PostService" version="${dubbo.version}" check="false"/>
+<!-- 提供的dubbo服务 -->
+	<dubbo:service interface="com.hrocloud.usrmgmt.api.UserService"
+                   ref="userService" version="${dubbo.version}" delay="-1" timeout="3000"/>
+                   
+	<dubbo:service interface="com.hrocloud.usrmgmt.api.NodeService"
+                   ref="nodeServiceImpl" version="${dubbo.version}" delay="-1" timeout="3000"/>
+                   
+	<dubbo:service interface="com.hrocloud.usrmgmt.api.RoleService"
+                   ref="roleServiceImpl" version="${dubbo.version}" delay="-1" timeout="3000"/>
+
+</beans>

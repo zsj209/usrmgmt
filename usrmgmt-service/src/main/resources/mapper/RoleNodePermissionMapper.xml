@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hrocloud.usrmgmt.dao.RoleNodePermissionMapper">
+  <resultMap id="BaseResultMap" type="com.hrocloud.usrmgmt.model.RoleNodePermission">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="create_by" jdbcType="INTEGER" property="createBy" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_by" jdbcType="INTEGER" property="updateBy" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="role_id" jdbcType="INTEGER" property="roleId" />
+    <result column="node_id" jdbcType="INTEGER" property="nodeId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, create_by, create_time, update_by, update_time,role_id, node_id
+  </sql>
+  
+  <!-- 插入数据 -->
+   <insert id="addRoleNode" parameterType="list"> 
+ insert role_node_permission(id,
+		        create_by,
+		        create_time,
+		        update_by,
+		        update_time,
+		        role_id,
+		        node_id) 
+ values 
+ <foreach collection="listRoleNode" item="roleNode" index="index" separator="," > 
+    (#{roleNode.id,jdbcType=INTEGER},
+    #{roleNode.createBy,jdbcType=INTEGER},
+     #{roleNode.createTime,jdbcType=TIMESTAMP},
+     #{roleNode.updateBy,jdbcType=INTEGER},
+     #{roleNode.updateTime,jdbcType=TIMESTAMP},
+    #{roleNode.roleId,jdbcType=INTEGER},
+   #{roleNode.nodeId,jdbcType=INTEGER}) 
+ </foreach> 
+ </insert>
+  
+  <!-- 根据角色id获取节点信息 -->
+    <select id="getRoleNodeById"  resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from role_node_permission
+    where role_id = #{roleId,jdbcType=INTEGER}
+  </select>
+  <!-- 根据角色和节点信息删除信息 -->
+  <delete id="delRoleNode" >
+    delete from role_node_permission
+    
+    where role_id = #{roleId} and node_id in 
+    	<foreach collection="delArr" open="(" close=")" separator=","
+			item="nodeId">
+			#{nodeId}
+		</foreach>
+   
+  </delete>
+ 
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from role_node_permission
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from role_node_permission
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.hrocloud.usrmgmt.model.RoleNodePermission">
+    insert into role_node_permission (id, create_by, create_time, 
+      update_by, update_time, 
+      role_id, node_id)
+    values (#{id,jdbcType=INTEGER}, #{createBy,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateBy,jdbcType=INTEGER}, #{updateTime,jdbcType=TIMESTAMP}, 
+      #{roleId,jdbcType=INTEGER}, #{nodeId,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.hrocloud.usrmgmt.model.RoleNodePermission">
+    insert into role_node_permission
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="createBy != null">
+        create_by,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateBy != null">
+        update_by,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="roleId != null">
+        role_id,
+      </if>
+      <if test="nodeId != null">
+        node_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="createBy != null">
+        #{createBy,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null">
+        #{updateBy,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="roleId != null">
+        #{roleId,jdbcType=INTEGER},
+      </if>
+      <if test="nodeId != null">
+        #{nodeId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.hrocloud.usrmgmt.model.RoleNodePermission">
+    update role_node_permission
+    <set>
+      <if test="createBy != null">
+        create_by = #{createBy,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null">
+        update_by = #{updateBy,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="roleId != null">
+        role_id = #{roleId,jdbcType=INTEGER},
+      </if>
+      <if test="nodeId != null">
+        node_id = #{nodeId,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.hrocloud.usrmgmt.model.RoleNodePermission">
+    update role_node_permission
+    set create_by = #{createBy,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_by = #{updateBy,jdbcType=INTEGER},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      role_id = #{roleId,jdbcType=INTEGER},
+      node_id = #{nodeId,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

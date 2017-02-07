@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hrocloud.usrmgmt.dao.NodeInfoMapper">
+
+  <resultMap id="BaseResultMap" type="com.hrocloud.usrmgmt.model.NodeInfo">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="create_by" jdbcType="INTEGER" property="createBy" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_by" jdbcType="INTEGER" property="updateBy" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="node_code" jdbcType="VARCHAR" property="nodeCode" />
+    <result column="node_name" jdbcType="VARCHAR" property="nodeName" />
+    <result column="parent_id" jdbcType="INTEGER" property="parentId" />
+    <result column="picture_code" jdbcType="VARCHAR" property="pictureCode" />
+    <result column="method_name" jdbcType="VARCHAR" property="methodName" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="funstyle" jdbcType="VARCHAR" property="funstyle" />
+    <result column="memo" jdbcType="VARCHAR" property="memo" />
+    
+    	<result column="sublist" jdbcType="VARCHAR" property="sublist" />
+		<result column="subnums" jdbcType="INTEGER" property="subnums" />
+		<result column="subvalidnums" jdbcType="INTEGER" property="subvalidnums" />
+		<result column="setstyle" jdbcType="VARCHAR" property="setstyle" />
+		
+		 <result column="node_pcode" jdbcType="VARCHAR" property="nodePcode" />
+		 <result column="node_id" jdbcType="INTEGER" property="nodeId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, create_by, create_time, update_by, update_time, node_code, node_name, parent_id, 
+    picture_code, method_name, type, memo,funstyle
+  </sql>
+  
+	<select id="getNodeTree"  resultMap="BaseResultMap">
+		SELECT *,(case when subnums>0 and subvalidnums>0 and subnums-subvalidnums>0 then 'half'
+		when subnums>0 and subvalidnums>0 and subnums-subvalidnums=0 then 'all'
+		when subnums=0 and selfvalidnums>0 then 'all'
+		else '' end) as setstyle
+		FROM (
+			SELECT nodeinfo.id,nodeinfo.id AS node_id,nodeinfo.node_code+0 as node_code,nodeinfo.node_name,nodeinfo.parent_id,
+				ifnull(pnode.node_code,0)+0 AS node_pcode,nodeinfo.memo,nodeinfo.type,
+				(SELECT group_concat('[',nn.id,']' order by nn.node_code separator '')	FROM node_info nn WHERE nn.parent_id=nodeinfo.id) sublist,
+				(SELECT count(*) FROM node_info nodeinfo1 WHERE nodeinfo1.parent_id = nodeinfo.id) AS subnums,
+				(select COUNT(*) from role_node_permission rnp where rnp.node_id in (select n.id from node_info n where n.parent_id=nodeinfo.id ) and rnp.role_id = #{roleId}) as subvalidnums,
+				(select count(*) from role_node_permission as rolenodeper1 where rolenodeper1.node_id=nodeinfo.id and rolenodeper1.role_id=#{roleId}) as selfvalidnums
+			FROM node_info AS nodeinfo
+			LEFT JOIN node_info AS pnode ON nodeinfo.parent_id = pnode.id
+			left join role_info as role on role.id = #{roleId}
+			WHERE nodeinfo.type=role.type
+		) as tempa
+		ORDER BY node_pcode, node_code
+	</select>
+  
+  <resultMap id="NodeInfoAll" type="com.hrocloud.usrmgmt.model.NodeInfoAll">
+		<id column="id" jdbcType="INTEGER" property="id" />
+		<result column="node_name" jdbcType="VARCHAR" property="nodeName" />
+		<result column="parent_id" jdbcType="INTEGER" property="parentId" />
+		<result column="parentName" jdbcType="VARCHAR" property="parentName" />
+		<result column="picture_code" jdbcType="VARCHAR" property="pictureCode" />
+		<result column="method_name" jdbcType="VARCHAR" property="methodName" />
+		<result column="memo" jdbcType="VARCHAR" property="memo" />
+		<result column="type" jdbcType="VARCHAR" property="type" />
+		<result column="funstyle" jdbcType="VARCHAR" property="funstyle" />
+		<result column="nodeCode" jdbcType="VARCHAR" property="nodeCode" />
+	</resultMap>
+
+	<sql id="Node_Column_List">
+		node_name, parent_id,picture_code, method_name,node_code,funstyle
+	</sql>
+
+	<!-- 获得角色下的所有节点信息 -->
+	<select id="quaryAllNodeInfos" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select COUNT(DISTINCT n.id) as count,n.id,
+		<include refid="Node_Column_List" />
+		from node_info n,role_node_permission r,role_info i where n.id = r.node_id and 
+		i.enabled = '02valid'
+		and i.id in 
+		<foreach collection="list" open="(" close=")" separator=","
+			item="roleId">
+			#{roleId}
+		</foreach>
+		 and 
+		r.role_id in
+		<foreach collection="list" open="(" close=")" separator=","
+			item="roleId">
+			#{roleId}
+		</foreach>
+		GROUP BY n.id  order by n.node_code
+	</select> 
+	<select id="quaryAllNodeInfo" resultMap="BaseResultMap">
+		select id,
+		<include refid="Node_Column_List" />
+		from node_info order by node_code
+	</select>
+
+
+	<!-- 节点分页 -->
+	<select id="nodePage" resultMap="NodeInfoAll">
+		SELECT
+		n.id as 'id',
+		n.node_name as 'nodeName',
+		n.method_name as 'methodName',
+		n.type as 'type',
+		n.funstyle as 'funstyle',
+		n.node_code as 'nodeCode',
+		m.node_name as 'parentName'
+		FROM
+		`node_info` AS n
+		LEFT JOIN
+		`node_info` AS m
+		on
+		n.parent_id = m.id
+		<where>
+			<if test="nodeInfo.nodeName != null and nodeInfo.nodeName != ''">
+				n.node_name LIKE CONCAT(CONCAT('%', #{nodeInfo.nodeName}),'%')
+			</if>
+			<if test="nodeInfo.type != null and nodeInfo.type != ''">
+				AND　n.type = #{nodeInfo.type}
+			</if>
+			<if test='flag != null and flag == "y"'>
+				AND n.parent_id != 0  
+			</if>
+		</where>
+		order by n.node_code
+	</select>
+	<!-- 删除节点信息 -->
+	<delete id="deleteNode" parameterType="java.util.List">
+		delete from node_info
+		where id in
+		<foreach collection="list" open="(" close=")" separator=","
+			item="id">
+			#{id}
+		</foreach>
+	</delete>
+<!-- 获得节点信息 -->
+<select id="getNodeById" resultMap="NodeInfoAll">
+		SELECT
+		n.id as 'id',
+		n.node_name as 'nodeName',
+		m.node_name as 'parentName',
+		m.id as 'parentId',
+		n.picture_code as 'pictureCode',
+		n.method_name as 'methodName',
+		n.memo as 'memo',
+		n.type as 'type',
+		n.node_code as 'nodeCode',
+		n.funstyle as 'funstyle'
+		
+		FROM
+		`node_info` AS n
+		LEFT JOIN
+		`node_info` AS m
+		on
+		n.parent_id = m.id
+		where
+		n.id = #{id}
+	</select>
+  
+  
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from node_info
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from node_info
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.hrocloud.usrmgmt.model.NodeInfo">
+    insert into node_info (id, create_by, create_time, 
+      update_by, update_time, node_code, 
+      node_name, parent_id, picture_code, 
+      method_name, type, memo,funstyle
+      )
+    values (#{id,jdbcType=INTEGER}, #{createBy,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateBy,jdbcType=INTEGER}, #{updateTime,jdbcType=TIMESTAMP}, #{nodeCode,jdbcType=VARCHAR}, 
+      #{nodeName,jdbcType=VARCHAR}, #{parentId,jdbcType=INTEGER}, #{pictureCode,jdbcType=VARCHAR}, 
+      #{methodName,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{memo,jdbcType=VARCHAR}, #{funstyle,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.hrocloud.usrmgmt.model.NodeInfo">
+    insert into node_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="createBy != null">
+        create_by,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateBy != null">
+        update_by,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="nodeCode != null">
+        node_code,
+      </if>
+      <if test="nodeName != null">
+        node_name,
+      </if>
+      <if test="parentId != null">
+        parent_id,
+      </if>
+      <if test="pictureCode != null">
+        picture_code,
+      </if>
+      <if test="methodName != null">
+        method_name,
+      </if>
+      <if test="type != null">
+        type,
+      </if>
+      <if test="memo != null">
+        memo,
+      </if>
+      <if test="funstyle != null">
+        funstyle,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="createBy != null">
+        #{createBy,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null">
+        #{updateBy,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="nodeCode != null">
+        #{nodeCode,jdbcType=VARCHAR},
+      </if>
+      <if test="nodeName != null">
+        #{nodeName,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null">
+        #{parentId,jdbcType=INTEGER},
+      </if>
+      <if test="pictureCode != null">
+        #{pictureCode,jdbcType=VARCHAR},
+      </if>
+      <if test="methodName != null">
+        #{methodName,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="memo != null">
+        #{memo,jdbcType=VARCHAR},
+      </if>
+      <if test="funstyle != null">
+        #{funstyle,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.hrocloud.usrmgmt.model.NodeInfo">
+    update node_info
+    <set>
+      <if test="createBy != null">
+        create_by = #{createBy,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null">
+        update_by = #{updateBy,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="nodeCode != null">
+        node_code = #{nodeCode,jdbcType=VARCHAR},
+      </if>
+      <if test="nodeName != null">
+        node_name = #{nodeName,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null">
+        parent_id = #{parentId,jdbcType=INTEGER},
+      </if>
+      <if test="pictureCode != null">
+        picture_code = #{pictureCode,jdbcType=VARCHAR},
+      </if>
+      <if test="methodName != null">
+        method_name = #{methodName,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        type = #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="memo != null">
+        memo = #{memo,jdbcType=VARCHAR},
+      </if>
+      <if test="funstyle != null">
+        funstyle = #{funstyle,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.hrocloud.usrmgmt.model.NodeInfo">
+    update node_info
+    set create_by = #{createBy,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_by = #{updateBy,jdbcType=INTEGER},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      node_code = #{nodeCode,jdbcType=VARCHAR},
+      node_name = #{nodeName,jdbcType=VARCHAR},
+      parent_id = #{parentId,jdbcType=INTEGER},
+      picture_code = #{pictureCode,jdbcType=VARCHAR},
+      method_name = #{methodName,jdbcType=VARCHAR},
+      type = #{type,jdbcType=VARCHAR},
+      memo = #{memo,jdbcType=VARCHAR},
+      funstyle = #{funstyle,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

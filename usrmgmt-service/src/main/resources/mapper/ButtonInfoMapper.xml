@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hrocloud.usrmgmt.dao.ButtonInfoMapper">
+  <resultMap id="BaseResultMap" type="com.hrocloud.usrmgmt.model.ButtonInfo">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="create_by" jdbcType="INTEGER" property="createBy" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_by" jdbcType="INTEGER" property="updateBy" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="button_name" jdbcType="VARCHAR" property="buttonName" />
+    <result column="node_id" jdbcType="INTEGER" property="nodeId" />
+    <result column="button_Id" jdbcType="VARCHAR" property="buttonId" />
+    <result column="memo" jdbcType="VARCHAR" property="memo" />
+  </resultMap>
+   	<resultMap id="ButtonInfoAll" type="com.hrocloud.usrmgmt.model.ButtonInfoAll">
+		<id column="id" jdbcType="INTEGER" property="id" />
+		<result column="button_name" jdbcType="VARCHAR" property="buttonName" />
+		<result column="node_id" jdbcType="INTEGER" property="nodeId" />
+		<result column="node_name" jdbcType="VARCHAR" property="buttonNode" />
+		<result column="button_Id" jdbcType="VARCHAR" property="buttonId" />
+		<result column="memo" jdbcType="VARCHAR" property="memo" />
+	</resultMap>
+ 
+ 
+ 	<!-- 按钮分页 -->
+	<select id="buttonPage" resultMap="ButtonInfoAll">
+		SELECT
+		b.id AS 'id',
+		b.button_name AS 'button_name',
+		b.node_id AS 'node_id',
+		n.node_name AS 'node_name',
+		b.button_Id AS 'button_Id',
+		b.memo AS 'memo'
+		FROM
+		`button_info` AS b
+		LEFT JOIN
+		`node_info` AS n
+		on
+		b.node_id = n.id
+		<where>
+			<if test="buttonInfo.buttonName != null and buttonInfo.buttonName != ''">
+				b.button_name LIKE CONCAT(CONCAT('%', #{buttonInfo.buttonName}),'%')
+			</if>
+		</where>
+	</select>
+ 
+ <!-- 删除按钮信息 -->
+	<delete id="deleteButton" parameterType="java.util.List">
+		delete from button_info
+		where id in
+		<foreach collection="list" open="(" close=")" separator=","
+			item="id">
+			#{id}
+		</foreach>
+	</delete>
+ 
+ <!-- 获得节点信息 -->
+<select id="getButtonById" resultMap="ButtonInfoAll">
+		SELECT
+		b.id AS 'id',
+		b.button_name AS 'button_name',
+		b.node_id AS 'node_id',
+		n.node_name AS 'node_name',
+		b.button_Id AS 'button_Id',
+		b.memo AS 'memo'
+		FROM
+		`button_info` AS b
+		LEFT JOIN
+		`node_info` AS n
+		on
+		b.node_id = n.id
+		where 
+		b.id = #{id}	
+	</select>
+  
+  
+  <select id="getButtonByNodeId" resultMap="ButtonInfoAll">
+	select 
+    <include refid="Base_Column" />
+    from button_info
+    where node_id = #{nodeId,jdbcType=INTEGER}
+	</select>
+  
+   <sql id="Base_Column">
+    id, button_name, node_id, button_Id, 
+    memo
+  </sql>
+  
+  <sql id="Base_Column_List">
+    id, create_by, create_time, update_by, update_time, button_name, node_id, button_Id, 
+    memo
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from button_info
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from button_info
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.hrocloud.usrmgmt.model.ButtonInfo">
+    insert into button_info (id, create_by, create_time, 
+      update_by, update_time, button_name, 
+      node_id, button_Id, memo
+      )
+    values (#{id,jdbcType=INTEGER}, #{createBy,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateBy,jdbcType=INTEGER}, #{updateTime,jdbcType=TIMESTAMP}, #{buttonName,jdbcType=VARCHAR}, 
+      #{nodeId,jdbcType=INTEGER}, #{buttonId,jdbcType=VARCHAR}, #{memo,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.hrocloud.usrmgmt.model.ButtonInfo">
+    insert into button_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="createBy != null">
+        create_by,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateBy != null">
+        update_by,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="buttonName != null">
+        button_name,
+      </if>
+      <if test="nodeId != null">
+        node_id,
+      </if>
+      <if test="buttonId != null">
+        button_Id,
+      </if>
+      <if test="memo != null">
+        memo,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="createBy != null">
+        #{createBy,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null">
+        #{updateBy,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="buttonName != null">
+        #{buttonName,jdbcType=VARCHAR},
+      </if>
+      <if test="nodeId != null">
+        #{nodeId,jdbcType=INTEGER},
+      </if>
+      <if test="buttonId != null">
+        #{buttonId,jdbcType=VARCHAR},
+      </if>
+      <if test="memo != null">
+        #{memo,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.hrocloud.usrmgmt.model.ButtonInfo">
+    update button_info
+    <set>
+      <if test="createBy != null">
+        create_by = #{createBy,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null">
+        update_by = #{updateBy,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="buttonName != null">
+        button_name = #{buttonName,jdbcType=VARCHAR},
+      </if>
+      <if test="nodeId != null">
+        node_id = #{nodeId,jdbcType=INTEGER},
+      </if>
+      <if test="buttonId != null">
+        button_Id = #{buttonId,jdbcType=VARCHAR},
+      </if>
+      <if test="memo != null">
+        memo = #{memo,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.hrocloud.usrmgmt.model.ButtonInfo">
+    update button_info
+    set create_by = #{createBy,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_by = #{updateBy,jdbcType=INTEGER},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      button_name = #{buttonName,jdbcType=VARCHAR},
+      node_id = #{nodeId,jdbcType=INTEGER},
+      button_Id = #{buttonId,jdbcType=VARCHAR},
+      memo = #{memo,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

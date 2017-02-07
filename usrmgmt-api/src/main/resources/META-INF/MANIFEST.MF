@@ -1,0 +1,10 @@
+Api-Export: 
+  com.hrocloud.usrmgmt.api.UserAgwService
+  com.hrocloud.usrmgmt.api.CaptchaAgwService
+  com.hrocloud.usrmgmt.api.NodeAgwService
+  com.hrocloud.usrmgmt.api.ButtonAgwService
+  com.hrocloud.usrmgmt.api.UserAgwUtils
+  com.hrocloud.usrmgmt.api.RoleAgwService
+  com.hrocloud.usrmgmt.api.RoleNodeAgwService
+  com.hrocloud.usrmgmt.api.RoleButtonAgwService
+Api-Dependency-Type: dubbo

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns="http://www.springframework.org/schema/beans" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/tx
+    http://www.springframework.org/schema/tx/spring-tx.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="order" value="1"/>
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+        <property name="locations">
+            <list>
+                <value>file:/opt/hrocloud/config/common-inf/redisConfig.properties</value>
+                <value>classpath:config.properties</value>
+            </list>
+        </property>
+    </bean>
+
+
+    <!-- <context:component-scan base-package="com.hrocloud.user.service" /> -->
+    <!-- 阿里 druid数据库连接池 -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="filters" value="config"/>
+        <property name="initialSize" value="10"/>
+        <property name="minIdle" value="10"/>
+        <property name="maxActive" value="60"/>
+        <property name="maxWait" value="1000"/>
+        <property name="testOnBorrow" value="false"/>
+        <property name="testWhileIdle" value="true"/>
+        <property name="timeBetweenEvictionRunsMillis" value="10000"/>
+        <property name="minEvictableIdleTimeMillis" value="300000"/>
+    </bean>
+
+    <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxTotal" value="${redis.maxTotal}"/>
+        <property name="maxIdle" value="${redis.maxIdle}"/>
+        <property name="timeBetweenEvictionRunsMillis" value="${redis.timeBetweenEvictionRunsMillis}"/>
+        <property name="minEvictableIdleTimeMillis" value="${redis.minEvictableIdleTimeMillis}"/>
+        <property name="testOnBorrow" value="${redis.testOnBorrow}"/>
+    </bean>
+    <bean id="jedis.shardInfo" class="redis.clients.jedis.JedisShardInfo">
+        <constructor-arg name="host" value="${redis.host}"/>
+        <constructor-arg name="port" value="${redis.port}"/>
+        <constructor-arg name="timeout" value="${redis.timeout}"/>
+    </bean>
+    <bean id="shardedJedisPool" class="redis.clients.jedis.ShardedJedisPool">
+        <constructor-arg index="0" ref="jedisPoolConfig"/>
+        <constructor-arg index="1">
+            <list>
+                <ref bean="jedis.shardInfo"/>
+            </list>
+        </constructor-arg>
+    </bean>
+    <bean id="redisDataSource" class="com.hrocloud.redis.RedisDataSourceImpl">
+        <property name="shardedJedisPool" ref="shardedJedisPool"></property>
+    </bean>
+    <bean class="com.hrocloud.redis.RedisClientTemplate" id="redisClient">
+        <property name="redisDataSource" ref="redisDataSource"/>
+    </bean>
+
+    <!-- mybatis文件配置，扫描所有mapper文件 -->
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="mapperLocations" value="classpath*:mapper/*.xml"/>
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+    </bean>
+    <!-- configLocation为mybatis属性 mapperLocations为所有mapper -->
+
+    <!-- spring与mybatis整合配置，扫描所有dao -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer"
+          p:basePackage="com.hrocloud.*.dao" p:sqlSessionFactoryBeanName="sqlSessionFactory"/>
+
+    <!-- 对数据源进行事务管理 -->
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+          p:dataSource-ref="dataSource">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+
+    <dubbo:application name="${dubbo.application.name}"/>
+
+    <dubbo:monitor protocol="registry"/>
+
+    <dubbo:registry address="${dubbo.registry.address}"
+                    protocol="zookeeper"/>
+
+    <dubbo:protocol name="dubbo" threads="${dubbo.protocol.threads}" port="${dubbo.application.port}"/>
+
+    <dubbo:reference id="commParamInfoService" interface="com.hrocloud.common.api.CommParamInfoService" version="${dubbo.version}" check="false"/>
+     <dubbo:reference id="companyService" interface="com.hrocloud.company.api.CompanyService" version="${dubbo.version}" check="false"/>
+     <dubbo:reference id="PostService" interface="com.hrocloud.company.api.PostService" version="${dubbo.version}" check="false"/>
+
+
+    <!-- 扫描文件（自动将service层注入） -->
+    <context:component-scan base-package="com.hrocloud.usrmgmt.service"/>
+</beans>
