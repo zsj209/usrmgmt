@@ -17,5 +17,7 @@ public interface RoleButtonPermissionMapper extends HroBaseMapper<RoleButtonPerm
 
 	int delRoleNodeButton(@Param("delArr")List<String> delArr, @Param("roleId")int roleId, @Param("nodeId")int nodeId);
 
+	int getCountByButtonIds(@Param("list")ArrayList<String> list);
+
 
 }

@@ -78,7 +78,22 @@
 	select 
     <include refid="Base_Column" />
     from button_info
-    where node_id = #{nodeId,jdbcType=INTEGER}
+    where  
+    
+<choose>
+    <when test="roleId != null">
+       id in (
+				SELECT
+			r.button_id from  role_button_permission r
+			WHERE
+			role_id = #{roleId} and node_id = #{nodeId}
+				)
+    </when>
+    <otherwise>
+        node_id = #{nodeId,jdbcType=INTEGER}
+    </otherwise>
+</choose>
+ 		order by id
 	</select>
   
    <sql id="Base_Column">

@@ -15,11 +15,11 @@ public class ButtonDTO implements Serializable{
 	public int id;
 	@Description("节点按钮名称")
     public String buttonName;
-	@Description("节点所属节点id")
+	@Description("按钮所属节点id")
     public int nodeId;
 	@Description("所属节点名称")
     public String buttonNode;
-	@Description("节点按钮id")
+	@Description("页面上按钮的id")
     public String buttonId;
 	@Description("备注")
     public String memo;
@@ -32,6 +32,4 @@ public class ButtonDTO implements Serializable{
 		this.buttonId = buttonInfoAll.getButtonId();
 		this.memo = buttonInfoAll.getMemo();
 	}
-
-
 }

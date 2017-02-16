@@ -38,6 +38,8 @@
     <dubbo:reference id="commParamInfoService" interface="com.hrocloud.common.api.CommParamInfoService" version="${dubbo.version}" check="false"/>
     <dubbo:reference id="companyService" interface="com.hrocloud.company.api.CompanyService" version="${dubbo.version}" check="false"/>
     <dubbo:reference id="PostService" interface="com.hrocloud.company.api.PostService" version="${dubbo.version}" check="false"/>
+    <dubbo:reference id="fileTokenService" interface="com.hrocloud.tiangong.filegw.api.FileTokenService" version="${dubbo.version}" check="false"/>
+    <dubbo:reference id="captchaTianGongService" interface="com.hrocloud.tiangong.verifycode.client.CaptchaService" version="${dubbo.version}" check="false"/>
 <!-- 提供的dubbo服务 -->
 	<dubbo:service interface="com.hrocloud.usrmgmt.api.UserService"
                    ref="userService" version="${dubbo.version}" delay="-1" timeout="3000"/>

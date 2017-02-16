@@ -16,11 +16,11 @@
 		<result column="memo" jdbcType="VARCHAR" property="memo" />
 	</resultMap>
 	<sql id="Base_Column_List">
-		id, create_by, create_time, update_by, update_time,termination_time,
+		id, create_by, create_time, update_by,
+		update_time,termination_time,
 		company_id, role_name, enabled, type,
 		memo
 	</sql>
-
 
 	<!-- 删除角色信息 -->
 	<delete id="deleteRole" parameterType="java.util.List">
@@ -38,7 +38,7 @@
 			<if test="enabled != null">
 				enabled = #{enabled,jdbcType=VARCHAR},
 			</if>
-				termination_time = #{terminationTime,jdbcType=TIMESTAMP},
+			termination_time = #{terminationTime,jdbcType=TIMESTAMP},
 		</set>
 		where id in
 		<foreach collection="list" open="(" close=")" separator=","
@@ -60,15 +60,52 @@
 				<if test="dataMap.enabled != null and dataMap.enabled != ''">
 					AND n.enabled = #{dataMap.enabled}
 				</if>
+				<if test="dataMap.companyId != null and dataMap.companyId != ''">
+					AND n.company_id = #{dataMap.companyId}
+				</if>
 			</if>
-
+			<if test="flag == 'true'">
+				AND n.type in ("0root","1admin","2hroadmin")
+			</if>
+			<if test="flag == 'false'">
+				AND n.type in ("3user","4ess","5mss")
+			</if>
+			<if test="flag == 'rootadmin'">
+				AND n.type in ("0root","1admin")
+			</if>
+			<if test="flag == '3user'">
+				AND n.type in ("3user")
+			</if>
 		</where>
 		order by id
 	</select>
 
-
-
-
+	<select id="getAllRole" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from role_info n
+		<where>
+				<if test="roleName != null and roleName != ''">
+					n.role_name LIKE CONCAT(CONCAT('%',
+					#{roleName}),'%')
+				</if>
+				<if test="enabled != null and enabled != ''">
+					AND n.enabled = #{enabled}
+				</if>
+				<if test="companyId != null and companyId != ''">
+					AND n.company_id = #{companyId}
+				</if>
+		
+			<if test="list != null">
+				AND n.type in
+				<foreach collection="list" open="(" close=")" separator=","
+					item="type">
+					#{type}
+				</foreach>
+			</if>
+		</where>
+		order by id
+	</select>
 
 	<select id="selectByPrimaryKey" parameterType="java.lang.Integer"
 		resultMap="BaseResultMap">
@@ -78,15 +115,19 @@
 		where id = #{id,jdbcType=INTEGER}
 	</select>
 	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-		delete from role_info
+		delete from
+		role_info
 		where id = #{id,jdbcType=INTEGER}
 	</delete>
 	<insert id="insert" parameterType="com.hrocloud.usrmgmt.model.RoleInfo">
-		insert into role_info (id, create_by, create_time,
-		update_by, update_time,termination_time, company_id,
+		insert into role_info (id,
+		create_by, create_time,
+		update_by, update_time,termination_time,
+		company_id,
 		role_name, enabled,type, memo
 		)
-		values (#{id,jdbcType=INTEGER}, #{createBy,jdbcType=INTEGER},
+		values
+		(#{id,jdbcType=INTEGER}, #{createBy,jdbcType=INTEGER},
 		#{createTime,jdbcType=TIMESTAMP},
 		#{updateBy,jdbcType=INTEGER},
 		#{updateTime,jdbcType=TIMESTAMP},
@@ -208,15 +249,22 @@
 	<update id="updateByPrimaryKey" parameterType="com.hrocloud.usrmgmt.model.RoleInfo">
 		update role_info
 		set create_by = #{createBy,jdbcType=INTEGER},
-		create_time = #{createTime,jdbcType=TIMESTAMP},
-		update_by = #{updateBy,jdbcType=INTEGER},
-		update_time = #{updateTime,jdbcType=TIMESTAMP},
-		termination_time = #{terminationTime,jdbcType=TIMESTAMP},
-		company_id = #{companyId,jdbcType=INTEGER},
-		role_name = #{roleName,jdbcType=VARCHAR},
+		create_time =
+		#{createTime,jdbcType=TIMESTAMP},
+		update_by =
+		#{updateBy,jdbcType=INTEGER},
+		update_time =
+		#{updateTime,jdbcType=TIMESTAMP},
+		termination_time =
+		#{terminationTime,jdbcType=TIMESTAMP},
+		company_id =
+		#{companyId,jdbcType=INTEGER},
+		role_name =
+		#{roleName,jdbcType=VARCHAR},
 		enabled = #{enabled,jdbcType=TINYINT},
 		memo = #{memo,jdbcType=VARCHAR},
 		type = #{type,jdbcType=VARCHAR}
-		where id = #{id,jdbcType=INTEGER}
+		where
+		id = #{id,jdbcType=INTEGER}
 	</update>
 </mapper>

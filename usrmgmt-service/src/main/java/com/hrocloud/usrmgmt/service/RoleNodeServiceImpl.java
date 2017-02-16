@@ -1,6 +1,7 @@
 package com.hrocloud.usrmgmt.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,15 @@ public class RoleNodeServiceImpl implements RoleNodeService {
 	public int delRoleNode(List<String> delArr, int roleId) {
 		int delResult = rnpm.delRoleNode(delArr,roleId);
 		return delResult;
+	}
+
+	public int getCountByNodeIds(String ids) {
+		ArrayList<String> list = new ArrayList<String>();
+		String idstr[] = ids.split(",");
+		Collections.addAll(list, idstr);
+		
+		int countByNodeIds = rnpm.getCountByNodeIds(list);
+		return countByNodeIds;
 	}
 	
 	

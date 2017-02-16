@@ -35,6 +35,8 @@ public interface RoleAgwService {
     		//@ApiParameter(required = false, name = "data", desc = "查询条件") String data,
     		@ApiParameter(required = false, name = "roleName", desc = "角色名称") String roleName,
     		@ApiParameter(required = false, name = "enabled", desc = "是否有效") String enabled,
+    		@ApiParameter(required = false, name = "companyId", desc = "公司id") String companyId,
+    		@ApiParameter(required = false, name = "flag", desc = "是否按照角色类型查询") String falg,
             @ApiParameter(required = true, name = "rows", desc = "每页显示条数") int rows,
             @ApiParameter(required = true, name = "page", desc = "当前页") int page);
 

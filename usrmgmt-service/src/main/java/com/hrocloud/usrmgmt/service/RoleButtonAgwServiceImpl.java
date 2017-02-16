@@ -38,7 +38,7 @@ public class RoleButtonAgwServiceImpl implements RoleButtonAgwService {
 			}
 			return list;
 		}
-		DubboExtProperty.setErrorCode(UserServiceHttpCode.ROLE_BUTTON_IS_NULL);
+	//	DubboExtProperty.setErrorCode(UserServiceHttpCode.ROLE_BUTTON_IS_NULL);
 		return null;
 	}
 

@@ -13,6 +13,7 @@ import com.hrocloud.common.exception.CommonServiceHttpCode;
 import com.hrocloud.common.model.CommCityInvalid;
 import com.hrocloud.usrmgmt.api.NodeAgwService;
 import com.hrocloud.usrmgmt.api.NodeService;
+import com.hrocloud.usrmgmt.api.RoleNodeService;
 import com.hrocloud.usrmgmt.dto.Menu;
 import com.hrocloud.usrmgmt.dto.NodeDTO;
 import com.hrocloud.usrmgmt.dto.NodeTreeDTO;
@@ -25,6 +26,9 @@ public class NodeAgwServiceImpl implements NodeAgwService {
 	
 	@Autowired
 	NodeService nodeServiceImpl;
+	
+	@Autowired
+	RoleNodeService roleNodeService;
 	
 	public List<Menu> getMenu(int userId) {
 		List<Menu> menu = nodeServiceImpl.getMenu(userId);
@@ -44,8 +48,19 @@ public class NodeAgwServiceImpl implements NodeAgwService {
 	}
 
 	public boolean deleteNode(String ids) {
-		boolean deleteNode = nodeServiceImpl.deleteNode(ids);
-		return deleteNode;
+		try{
+			//判断该节点是否已经分配权限
+			int count = roleNodeService.getCountByNodeIds(ids);
+			if(count != 0){
+				 DubboExtProperty.setErrorCode(UserServiceHttpCode.NODE_ASSIGNED_ERROR);
+				 return false;
+			}
+			int deleteNode = nodeServiceImpl.deleteNode(ids);
+			return true;
+		} catch (Exception e) {
+			 DubboExtProperty.setErrorCode(UserServiceHttpCode.NODE_DELINFO_ERROR);
+		}
+		return false;
 	}
 
 	public boolean addOrModifyNode(int userId,String data) {

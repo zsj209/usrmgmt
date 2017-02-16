@@ -13,7 +13,10 @@ import com.hrocloud.usrmgmt.model.RoleInfo;
 
 public interface RoleInfoMapper extends HroBaseMapper<RoleInfo> {
 
-	List<RoleInfo> getAllRolePage(@Param("dataMap")HashMap<String, String> dataMap,@Param("page") PageParameter pageInfo);
+	//List<RoleInfo> getAllRolePage(@Param("dataMap")HashMap<String, String> dataMap,@Param("list") List list,@Param("page") PageParameter pageInfo);
+	List<RoleInfo> getAllRolePage(@Param("dataMap")HashMap<String, String> dataMap,@Param("flag") String falg,@Param("page") PageParameter pageInfo);
+	
+	List<RoleInfo> getAllRole(@Param("roleName")String roleName, @Param("enabled")String enabled, @Param("companyId")int companyId, @Param("list")ArrayList<String> list);
 	
 	int deleteRole(ArrayList<String> list);
 

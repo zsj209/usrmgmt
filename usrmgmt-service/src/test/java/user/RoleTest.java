@@ -4,7 +4,12 @@
  */
 package user;
 
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import com.hrocloud.usrmgmt.api.RoleAgwService;
+import com.hrocloud.usrmgmt.dao.RoleInfoMapper;
 import com.hrocloud.usrmgmt.dto.PageDTO;
 import com.hrocloud.usrmgmt.dto.RoleDTO;
 
@@ -25,18 +30,24 @@ public class RoleTest extends AbstractJUnit4SpringContextTests {
 
     @Resource
     private RoleAgwService roleService;
+    @Resource
+    private RoleInfoMapper rif;
    
     @Test
     public void testAddOrModifyRole() {
-
     	boolean role = roleService.addOrModifyRole(2, "{\"roleName\":\"测试节点\",\"companyId\":100,\"type\":\"0root\",\"enabled\":1}");
     	System.out.println(role);
     }
     @Test
     public void testGetRoleList() {
-    	/*
-    	PageDTO list = roleService.getRoleList(null, 10, 1);
-    	System.out.println(list);*/
+    	/*PageDTO list = roleService.getRoleList("管理员", "02valid", "0root,1admin,2hroadmin", 20, 1);*/
+    	/*ArrayList<String> list = new ArrayList<String>();
+    	list.add("0root");
+    	HashMap<String,String> hashMap = new HashMap<String, String>();
+    	hashMap.put("roleName", "管理");
+    	hashMap.put("enabled", "02valid");
+    	rif.getAllRole(hashMap, list);*/
+    	roleService.getRoleList("管理员", "02valid","1", "true", 20, 1);
     }
     @Test
     public void testDeleteRole() {
@@ -51,5 +62,6 @@ public class RoleTest extends AbstractJUnit4SpringContextTests {
     	RoleDTO roleDTO = roleService.getRoleById(1010);
     	System.out.println(roleDTO);
     }
+
    
 }

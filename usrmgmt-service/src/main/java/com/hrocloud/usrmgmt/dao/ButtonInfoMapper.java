@@ -21,6 +21,6 @@ public interface ButtonInfoMapper extends HroBaseMapper<ButtonInfo> {
 
 	ButtonInfoAll getButtonById(int id);
 
-	List<ButtonInfoAll> getButtonByNodeId(int nodeId);
+	List<ButtonInfoAll> getButtonByNodeId(@Param("nodeId")int nodeId,@Param("roleId") String roleId);
 
 }

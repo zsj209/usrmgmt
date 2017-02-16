@@ -47,7 +47,7 @@ public class NodeTest extends AbstractJUnit4SpringContextTests {
     @Test
     public void testDeleteNode() {
     	
-    	boolean node = nodeService.deleteNode("176,177");
+    	boolean node = nodeService.deleteNode("1094");
     	System.out.println(node);
     }
     @Test

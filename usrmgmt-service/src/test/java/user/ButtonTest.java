@@ -48,7 +48,7 @@ public class ButtonTest extends AbstractJUnit4SpringContextTests {
    
     @Test
     public void testGetButtonByNodeId() {
-     List<ButtonDTO> list = buttonService.getButtonByNodeId(137);
+     List<ButtonDTO> list = buttonService.getButtonByNodeId(100,"136");
      System.out.println(list);
     }
     

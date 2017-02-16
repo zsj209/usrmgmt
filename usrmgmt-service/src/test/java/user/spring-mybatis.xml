@@ -101,6 +101,7 @@
     <dubbo:reference id="commParamInfoService" interface="com.hrocloud.common.api.CommParamInfoService" version="${dubbo.version}" check="false"/>
      <dubbo:reference id="companyService" interface="com.hrocloud.company.api.CompanyService" version="${dubbo.version}" check="false"/>
      <dubbo:reference id="PostService" interface="com.hrocloud.company.api.PostService" version="${dubbo.version}" check="false"/>
+    <dubbo:reference id="fileTokenService" interface="com.hrocloud.tiangong.filegw.api.FileTokenService" version="${dubbo.version}" check="false"/>
 
 
     <!-- 扫描文件（自动将service层注入） -->

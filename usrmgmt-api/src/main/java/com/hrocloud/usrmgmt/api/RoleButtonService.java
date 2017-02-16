@@ -23,6 +23,8 @@ public interface RoleButtonService {
 
 	int delRoleNodeButton(List<String> delArr, int roleId, int nodeId);
 
+	int getCountByButtonIds(String ids);
+
 
 
 

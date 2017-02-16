@@ -43,7 +43,7 @@ public class Menu implements Serializable{
 	}
 
 	public void setPictureCode(String pictureCode) {
-		this.pictureCode = pictureCode;
+		this.pictureCode = pictureCode == null ? "":pictureCode;
 	}
 
 	public String getMethodName() {

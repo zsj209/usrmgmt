@@ -1,6 +1,7 @@
 package com.hrocloud.usrmgmt.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,7 @@ import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSON;
 import com.hrocloud.apigw.client.dubboext.DubboExtProperty;
@@ -38,19 +40,22 @@ public class RoleAgwServiceImpl implements RoleAgwService {
 
 	@Resource
 	private CommParamInfoService commParamInfoService;
-
-	public PageDTO getRoleList(String roleName,String enabled ,int rows, int page) {
+	
+	public PageDTO getRoleList(String roleName,String enabled ,String companyId,String flag,int rows, int page) {
 		//HashMap<String, String> dataMap = (HashMap<String, String>) JSON.parseObject(data, Map.class);
 		HashMap<String, String> dataMap = new HashMap<String, String>();
 		dataMap.put("roleName", roleName);
 		dataMap.put("enabled", enabled);
+		dataMap.put("companyId", companyId);
 		
-
-		// TODO
+		/*ArrayList<String> list = new ArrayList<String>();
+		String idstr[] = roleTypes.split(",");
+		Collections.addAll(list, idstr);*/
+		
 		PageParameter pageInfo = new PageParameter();
 		pageInfo.setPageSize(rows);
 		pageInfo.setCurrentPage(page);
-		List<RoleInfo> roleList = roleService.getRoleList(dataMap, pageInfo);
+		List<RoleInfo> roleList = roleService.getRoleList(dataMap,flag,pageInfo);
 
 		List<RoleDTO> udList = new ArrayList<RoleDTO>();
 		for (RoleInfo role : roleList) {

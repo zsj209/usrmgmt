@@ -10,17 +10,23 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.hrocloud.apigw.client.dubboext.DubboExtProperty;
 import com.hrocloud.common.page.PageParameter;
 import com.hrocloud.usrmgmt.api.ButtonAgwService;
 import com.hrocloud.usrmgmt.api.ButtonService;
+import com.hrocloud.usrmgmt.api.RoleButtonService;
 import com.hrocloud.usrmgmt.dto.Menu;
 import com.hrocloud.usrmgmt.dto.ButtonDTO;
 import com.hrocloud.usrmgmt.dto.NodeDTO;
 import com.hrocloud.usrmgmt.dto.PageDTO;
+import com.hrocloud.usrmgmt.exception.UserServiceHttpCode;
 import com.hrocloud.usrmgmt.model.ButtonInfo;
 import com.hrocloud.usrmgmt.model.ButtonInfoAll;
 @Service("buttonAgwServiceImpl")
 public class ButtonAgwServiceImpl implements ButtonAgwService {
+	
+	@Autowired
+	RoleButtonService roleButtonService;
 
 	@Autowired
 	ButtonService buttonServiceImpl;
@@ -51,8 +57,22 @@ public class ButtonAgwServiceImpl implements ButtonAgwService {
 	}
 
 	public boolean deleteButton(String ids) {
-		boolean deleteButton = buttonServiceImpl.deleteButton(ids);
-		return deleteButton;
+		
+		try{
+			//统计是否已经分配给某一角色
+			int count  = roleButtonService.getCountByButtonIds(ids);
+			if(count == 0){
+				boolean deleteButton = buttonServiceImpl.deleteButton(ids);
+				return deleteButton;
+			}else{
+				//不能删除，存在按钮已经分配给指定角色
+				DubboExtProperty.setErrorCode(UserServiceHttpCode.BUTTON_ASSIGNED_ERROR);
+			}
+			
+		} catch (Exception e) {
+			 DubboExtProperty.setErrorCode(UserServiceHttpCode.BUTTON_DELINFO_ERROR);
+		}
+		return false;
 	}
 
 	public boolean addOrModifyButton(int userId, String data) {
@@ -65,8 +85,8 @@ public class ButtonAgwServiceImpl implements ButtonAgwService {
 		return buttonById;
 	}
 
-	public List<ButtonDTO> getButtonByNodeId(int nodeId) {
-		List<ButtonInfoAll> buttonByNodeId = buttonServiceImpl.getButtonByNodeId(nodeId);
+	public List<ButtonDTO> getButtonByNodeId(int nodeId,String roleId) {
+		List<ButtonInfoAll> buttonByNodeId = buttonServiceImpl.getButtonByNodeId(nodeId,roleId);
 		List<ButtonDTO> ResultList = new ArrayList<ButtonDTO>();
 		if(buttonByNodeId.size()>0){
 			for(int i=0;i<buttonByNodeId.size();i++){

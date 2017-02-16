@@ -1,6 +1,7 @@
 package com.hrocloud.usrmgmt.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,17 @@ public class RoleButtonServiceImpl implements RoleButtonService {
 
 	public List<RoleButtonPermission> getRoleNodeButton(int roleId, int nodeId) {
 		return rbpm.getRoleButton(roleId, nodeId);
+	}
+
+	public int getCountByButtonIds(String ids) {
+
+		ArrayList<String> list = new ArrayList<String>();
+		String idstr[] = ids.split(",");
+		Collections.addAll(list, idstr);
+		
+		int count = rbpm.getCountByButtonIds(list);
+		
+		return count;
 	}
 
 }

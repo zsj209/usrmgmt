@@ -8,6 +8,7 @@ import com.hrocloud.common.api.model.CaptchaTemplate;
 import com.hrocloud.usrmgmt.api.CaptchaService;
 import com.hrocloud.usrmgmt.api.NodeAgwService;
 import com.hrocloud.usrmgmt.api.RoleButtonAgwService;
+import com.hrocloud.usrmgmt.api.RoleButtonService;
 import com.hrocloud.usrmgmt.api.RoleNodeAgwService;
 import com.hrocloud.usrmgmt.api.UserAgwService;
 import com.hrocloud.usrmgmt.dto.Menu;
@@ -35,6 +36,8 @@ public class RoleButtonTest extends AbstractJUnit4SpringContextTests {
 
     @Resource
     private RoleButtonAgwService rnas;
+    @Resource
+    private RoleButtonService rs;
  
     @Test
     public void testGetNodeTree() {
@@ -47,5 +50,10 @@ public class RoleButtonTest extends AbstractJUnit4SpringContextTests {
     	
     	boolean addOrModifyRoleNodeButton = rnas.addOrModifyRoleNodeButton(100, 100, 116, "1020");
     	System.out.println(addOrModifyRoleNodeButton);
+    }
+    @Test
+    public void testGetCountByButtonIds() {
+    	
+    	rs.getCountByButtonIds("1032,1033");
     }
 }

@@ -24,6 +24,16 @@
 		where node_id = #{nodeId}
 		AND role_id = #{roleId}
 	</select>
+	<select id="getCountByButtonIds" resultType="INTEGER">
+		select
+		count(1)
+		from role_button_permission
+		where button_id in  
+			<foreach collection="list" open="(" close=")" separator=","
+				item="buttonId">
+				#{buttonId}
+			</foreach>
+	</select>
 
 	<!-- 插入数据 -->
 	<insert id="addOrModifyRoleNodeButton" parameterType="list">

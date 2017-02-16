@@ -156,17 +156,12 @@ public class NodeServiceImpl implements NodeService {
 
 	}
 
-	public boolean deleteNode(String ids) {
-		try{
+	public int deleteNode(String ids) {
 			ArrayList<String> list = new ArrayList<String>();
 			String idstr[] = ids.split(",");
 			Collections.addAll(list, idstr);
 			int deleteResult = nodeInfoMapper.deleteNode(list);
-			return true;
-		} catch (Exception e) {
-			 DubboExtProperty.setErrorCode(UserServiceHttpCode.NODE_DELINFO_ERROR);
-		}
-		return false;
+			return deleteResult;
 	}
 
 	public boolean addOrModifyNode(int userId, String data) {

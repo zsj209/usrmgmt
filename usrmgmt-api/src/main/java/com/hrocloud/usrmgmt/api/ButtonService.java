@@ -22,7 +22,7 @@ public interface ButtonService {
 
 	public ButtonDTO getButtonById(int id);
 
-	public List<ButtonInfoAll> getButtonByNodeId(int nodeId);
+	public List<ButtonInfoAll> getButtonByNodeId(int nodeId,String roleId);
 
 
 }

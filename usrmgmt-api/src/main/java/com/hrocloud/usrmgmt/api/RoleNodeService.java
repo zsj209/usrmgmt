@@ -21,5 +21,7 @@ public interface RoleNodeService {
 
 	int delRoleNode(List<String> delArr, int roleId);
 
+	int getCountByNodeIds(String ids);
+
 
 }

@@ -30,8 +30,8 @@ public class RoleServiceImpl implements RoleService {
 		return roleDao.selectByPrimaryKey(roleId);
 	}
 
-	public List<RoleInfo> getRoleList(HashMap<String, String> dataMap, PageParameter pageInfo) {
-		return roleDao.getAllRolePage(dataMap, pageInfo);
+	public List<RoleInfo> getRoleList(HashMap<String, String> dataMap,String flag, PageParameter pageInfo) {
+		return roleDao.getAllRolePage(dataMap,flag,pageInfo);
 	}
 
 	public boolean addOrModifyRole(int userId,String data) {
@@ -120,6 +120,14 @@ public class RoleServiceImpl implements RoleService {
 	public int update(RoleInfo arg0) {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	public RoleInfo getAllRole(String roleName, String enabled, int companyId, String types) {
+		ArrayList<String> list = new ArrayList<String>();
+		String idstr[] = types.split(",");
+		Collections.addAll(list, idstr);
+		List<RoleInfo> allRole = roleDao.getAllRole( roleName, enabled, companyId,list);
+		return allRole != null ? allRole.get(0):null;
 	}
 
 

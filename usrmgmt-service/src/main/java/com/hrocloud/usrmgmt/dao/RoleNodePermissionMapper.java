@@ -16,4 +16,6 @@ public interface RoleNodePermissionMapper extends HroBaseMapper<RoleNodePermissi
 
 	int delRoleNode(@Param("delArr")List<String> delArr, @Param("roleId")int roleId);
 
+	int getCountByNodeIds(@Param("list")ArrayList<String> list);
+
 }

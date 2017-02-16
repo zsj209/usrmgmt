@@ -6,10 +6,14 @@ package com.hrocloud.usrmgmt.service;
 
 
 import com.hrocloud.apigw.client.dubboext.DubboExtProperty;
+import com.hrocloud.apigw.client.utils.AesHelper;
+import com.hrocloud.apigw.client.utils.Base64Util;
 import com.hrocloud.common.api.CommParamInfoService;
 import com.hrocloud.common.exception.BusinessException;
 import com.hrocloud.common.page.PageParameter;
 import com.hrocloud.redis.RedisClientTemplate;
+import com.hrocloud.tiangong.filegw.api.FileTokenService;
+import com.hrocloud.tiangong.verifycode.client.CaptchaService;
 import com.hrocloud.usrmgmt.api.SessionService;
 import com.hrocloud.usrmgmt.api.UserAgwService;
 import com.hrocloud.usrmgmt.api.UserService;
@@ -35,8 +39,9 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.*;
-
 /**
  * Created by Stanley Zou on 2016/12/28
  */
@@ -57,6 +62,21 @@ public class UserAgwServiceImpl implements UserAgwService {
     @Resource
     private CommParamInfoService commParamInfoService;
 
+    @Resource
+    private FileTokenService fileTokenService;
+    
+    @Resource
+    private CaptchaService captchaTianGongService;
+
+    @Value("${captchaimg.clientId}")
+    private String clientId ;
+    @Value("${captchaimg.clientPass}")
+    private String clientPass;
+    @Value("${captchaimg.clientIp}")
+    private String clientIp;
+	
+    
+    
     /**
      * @param clientIp
      * @param applicationId 接入端口号
@@ -76,6 +96,7 @@ public class UserAgwServiceImpl implements UserAgwService {
         }
 
         if (!verifyCapCode(capId, captchaCode)) {
+        	DubboExtProperty.setErrorCode(UserServiceHttpCode.USER_VERIFYCAPCODE_ERROR);
             return null;
         }
 
@@ -185,24 +206,33 @@ public class UserAgwServiceImpl implements UserAgwService {
             return false;
         }
         if (!VerifyHelper.isValidEmail(email)) {
-            //TODO
             //添加并修改错误码
             DubboExtProperty.setErrorCode(UserServiceHttpCode.USER_EMAIL_ERROR);
             return false;
         }
 
-        if (!verifyMobileCode(verifyId, verifyCode))
+        //验证手机验证码
+        String code = verifyMobileCode(verifyId, verifyCode);
+        if ("INVALID".equals(code)){
+            // 验证码已过期
+            DubboExtProperty.setErrorCode(UserServiceHttpCode.USER_VERIFYMOBILECODE_INVALID);
             return false;
+        }else if("ERROR".equals(code)){
+        	 //验证码不正确
+            DubboExtProperty.setErrorCode(UserServiceHttpCode.USER_VERIFYMOBILECODE_ERROR);
+            return false;
+        }
 
       /*  if (!VerifyHelper.validCaptchCode(captchaCode)) {
-            //TODO
-            //添加并修改错误码
             DubboExtProperty.setErrorCode(UserServiceHttpCode.USER_NOT_FOUND);
             return false;
         }*/
 
-        if (!verifyCapCode(capId, captchaCode))
+        if (!verifyCapCode(capId, captchaCode)){
+        	//图形验证码错误
+        	DubboExtProperty.setErrorCode(UserServiceHttpCode.USER_VERIFYCAPCODE_ERROR);
             return false;
+        }
 
         //判断用户是否已经注册完成
         UserInfo user = userService.getUser(mobileNo);
@@ -250,11 +280,23 @@ public class UserAgwServiceImpl implements UserAgwService {
      * @return
      */
     public boolean getBackPassword(String loginCode, String verifyCode, String verifyId, String captchaCode, String capId, String newpwd1, String newpwd2) {
-        if (!verifyMobileCode(verifyId, verifyCode))
+    	 //验证手机验证码
+        String code = verifyMobileCode(verifyId, verifyCode);
+        if ("INVALID".equals(code)){
+            // 验证码已过期
+            DubboExtProperty.setErrorCode(UserServiceHttpCode.USER_VERIFYMOBILECODE_INVALID);
             return false;
+        }else if("ERROR".equals(code)){
+        	 //验证码不正确
+            DubboExtProperty.setErrorCode(UserServiceHttpCode.USER_VERIFYMOBILECODE_ERROR);
+            return false;
+        }
 
-        if (!verifyCapCode(capId, captchaCode))
+        //验证图形验证码
+        if (!verifyCapCode(capId, captchaCode)){
+        	DubboExtProperty.setErrorCode(UserServiceHttpCode.USER_VERIFYCAPCODE_ERROR);
             return false;
+        }
 
         String password = VerifyHelper.verifiedPass(newpwd1, newpwd2);
         if (password == null)
@@ -289,11 +331,22 @@ public class UserAgwServiceImpl implements UserAgwService {
             return false;
         }
 
-        if (!verifyMobileCode(verifyId, verifyCode))
+        //验证手机验证码
+        String code = verifyMobileCode(verifyId, verifyCode);
+        if ("INVALID".equals(code)){
+            // 验证码已过期
+            DubboExtProperty.setErrorCode(UserServiceHttpCode.USER_VERIFYMOBILECODE_INVALID);
             return false;
+        }else if("ERROR".equals(code)){
+        	 //验证码不正确
+            DubboExtProperty.setErrorCode(UserServiceHttpCode.USER_VERIFYMOBILECODE_ERROR);
+            return false;
+        }
 
-        if (!verifyCapCode(capId, captchaCode))
+        if (!verifyCapCode(capId, captchaCode)){
+        	DubboExtProperty.setErrorCode(UserServiceHttpCode.USER_VERIFYCAPCODE_ERROR);
             return false;
+        }
 
         UserInfo userInfo = userService.getUserById(userId);
         if (userInfo == null) {
@@ -368,10 +421,10 @@ public class UserAgwServiceImpl implements UserAgwService {
             userDTO.idTypeDesc = Utils.getParamValueDesc(userInfo.getIdType(), userDTO.idTypeList);
             userDTO.genderDesc = Utils.getParamValueDesc(userInfo.getGender(), userDTO.genderList);
             userDTO.statusDesc = Utils.getParamValueDesc(userInfo.getStatus(), userDTO.statusList);
-            if(userInfo.getFinalRoleType() != null && userInfo.getFinalRoleType() != ""){
-            	userDTO.finalRoleTypeDesc = Utils.getParamValueDesc(userInfo.getFinalRoleType(), 
-            			Utils.buildAgwParamList("bustype", ValueListDefine.class, commParamInfoService, userDTO.status, allItem)
-            			);
+            if (userInfo.getFinalRoleType() != null && userInfo.getFinalRoleType() != "") {
+                userDTO.finalRoleTypeDesc = Utils.getParamValueDesc(userInfo.getFinalRoleType(),
+                        Utils.buildAgwParamList("bustype", ValueListDefine.class, commParamInfoService, userDTO.status, allItem)
+                );
             }
         }
         return userDTO;
@@ -440,7 +493,10 @@ public class UserAgwServiceImpl implements UserAgwService {
      * @return
      */
     private boolean verifyCapCode(String capId, String captchaCode) {
-        String capValue = redisClient.get(capId);
+    	
+    	return captchaTianGongService.verifyCaptcha(clientId, clientPass, clientIp, capId, captchaCode);
+    	
+     /*   String capValue = redisClient.get(capId);
         if (StringUtils.isEmpty(capValue)) {
             // 验证码已过期
             DubboExtProperty.setErrorCode(UserServiceHttpCode.USER_VERIFYCAPCODE_INVALID);
@@ -448,11 +504,10 @@ public class UserAgwServiceImpl implements UserAgwService {
         }
         if (!capValue.equalsIgnoreCase(captchaCode)) {
             // 验证码不正确
-            // 添加并修改错误码
             DubboExtProperty.setErrorCode(UserServiceHttpCode.USER_VERIFYCAPCODE_ERROR);
             return false;
         }
-        return true;
+        return true;*/
     }
 
     /**
@@ -462,19 +517,15 @@ public class UserAgwServiceImpl implements UserAgwService {
      * @param inputCode
      * @return
      */
-    private boolean verifyMobileCode(String codeKey, String inputCode) {
+    private String verifyMobileCode(String codeKey, String inputCode) {
         String codeValue = redisClient.hget(codeKey, "verifyCode");
         if (StringUtils.isEmpty(codeValue)) {
-            // 验证码已过期
-            DubboExtProperty.setErrorCode(UserServiceHttpCode.USER_VERIFYMOBILECODE_INVALID);
-            return false;
+            return "INVALID";
         }
         if (!inputCode.equalsIgnoreCase(codeValue)) {
-            //验证码不正确
-            DubboExtProperty.setErrorCode(UserServiceHttpCode.USER_VERIFYMOBILECODE_ERROR);
-            return false;
+            return "ERROR";
         }
-        return true;
+        return "SUCCESS";
     }
 
 
@@ -554,24 +605,47 @@ public class UserAgwServiceImpl implements UserAgwService {
         }
     }
 
-	public int updateFianlRoleTpye(int userId, String roletype) {
-		return userService.modifyFinalRoleType(userId,roletype);
-	}
-	
-	public List<Menu> getUserMenu(int userId, String roleType) {
-		try {
-			logger.info("------------------>getUserMenu");
-			List<Menu> nodelist = userService.getUserMenu(userId, roleType);
-			if (nodelist == null) {
-				DubboExtProperty
-						.setErrorCode(UserServiceHttpCode.USER_NONNODE_ERROR);
-				return null;
-			}
-			return nodelist;
-		} catch (BusinessException e) {
-			DubboExtProperty
-					.setErrorCode(UserServiceHttpCode.USER_GETPERM_ERROR);
-			return null;
-		}
-	}
+    public int updateFianlRoleTpye(int userId, String roletype) {
+        return userService.modifyFinalRoleType(userId, roletype);
+    }
+
+    public List<Menu> getUserMenu(int userId, String roleType) {
+        try {
+            logger.info("------------------>getUserMenu");
+            List<Menu> nodelist = userService.getUserMenu(userId, roleType);
+            if (nodelist == null) {
+                DubboExtProperty
+                        .setErrorCode(UserServiceHttpCode.USER_NONNODE_ERROR);
+                return null;
+            }
+            return nodelist;
+        } catch (BusinessException e) {
+            DubboExtProperty
+                    .setErrorCode(UserServiceHttpCode.USER_GETPERM_ERROR);
+            return null;
+        }
+    }
+
+    public String getPrivateFileToken(int userId, int appId, boolean isPrivate, String fileKey, int expireSecs) {
+        Long domainId = (long) AppDomain.appOf(appId).getDomainId();
+        String group = "1";
+        if (isPrivate)
+            group = "1";
+        else
+            group = "0";
+
+        String token = fileTokenService.requestFileToken(domainId, (long) userId, group, fileKey, System.currentTimeMillis() + expireSecs * 1000);
+
+        AesHelper aesHelper = new AesHelper(Base64Util.decode("eqHSs48SCL2VoGsW1lWvDWKQ8Vu71UZJyS7Dbf/e4zo="), null);
+        String _tk = null;
+        try {
+            _tk = "_tk=" + URLEncoder.encode(Base64Util.encodeToString(aesHelper.encrypt((domainId + "|" + (long) userId + "|" + group + "|" + System.currentTimeMillis() + "|||||").getBytes())), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+
+        return "token=" + URLEncoder.encode(token) + "&" + _tk;
+    }
+
 }

@@ -107,13 +107,18 @@ public class UserServiceHttpCode extends AbstractReturnCode {
     public final static int C_ROLE_BUTTON_ADDINFO_ERROR = 1042;
     public final static AbstractReturnCode ROLE_BUTTON_ADDINFO_ERROR = new UserServiceHttpCode("节点按钮权限分配失败", C_ROLE_BUTTON_ADDINFO_ERROR);
     public final static int C_ROLE_BUTTON_MODIFYINFO_ERROR = 1043;
-    public final static AbstractReturnCode ROLE_BUTTON_MODIFYINFO_ERROR = new UserServiceHttpCode("按钮信息不存在", C_ROLE_BUTTON_MODIFYINFO_ERROR);
+    public final static AbstractReturnCode ROLE_BUTTON_MODIFYINFO_ERROR = new UserServiceHttpCode("节点按钮权限修改", C_ROLE_BUTTON_MODIFYINFO_ERROR);
     
     public final static int C_USER_NONPERM_ERROR = 1044;
     public final static AbstractReturnCode USER_NONPERM_ERROR = new UserServiceHttpCode("用户未分配合适的岗位或角色", C_USER_NONPERM_ERROR);
     
     public final static int C_USER_NONNODE_ERROR = 1045;
     public final static AbstractReturnCode USER_NONNODE_ERROR = new UserServiceHttpCode("角色未分配节点权限", C_USER_NONNODE_ERROR);
+    
+    public final static int C_BUTTON_ASSIGNED_ERROR = 1046;
+    public final static AbstractReturnCode BUTTON_ASSIGNED_ERROR = new UserServiceHttpCode("按钮已分配权限不能删除",C_BUTTON_ASSIGNED_ERROR);
+    public final static int C_NODE_ASSIGNED_ERROR = 1047;
+    public final static AbstractReturnCode NODE_ASSIGNED_ERROR = new UserServiceHttpCode("节点已分配权限不能删除",C_NODE_ASSIGNED_ERROR);
     
     public UserServiceHttpCode(String desc, int code) {
         super(desc, code);

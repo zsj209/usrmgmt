@@ -23,7 +23,7 @@ public interface NodeService {
 
 	public PageDTO nodePage(NodeInfo nodeInfo, String  flag, int rows, int page);
 
-	public boolean deleteNode(String ids);
+	public int deleteNode(String ids);
 
 	public boolean addOrModifyNode(int userId,String data);
 

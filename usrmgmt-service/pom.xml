@@ -12,14 +12,19 @@
 	<artifactId>usrmgmt-service</artifactId>
 	<packaging>jar</packaging>
 	<dependencies>
-	
-	<dependency>
-  <groupId>com.hrocloud.common</groupId>
-  <artifactId>common-api</artifactId>
-  <version>1.0-SNAPSHOT</version>
-</dependency>
-	
-	<!-- 引用公司服务 -->
+
+		<dependency>
+			<groupId>com.hrocloud.common</groupId>
+			<artifactId>common-api</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+
+		<!-- 引用公司服务 -->
+		<dependency>
+			<groupId>com.hrocloud.tiangong</groupId>
+			<artifactId>verifycode-client</artifactId>
+			<version>0.1.0-SNAPSHOT</version>
+		</dependency>
 		<dependency>
 			<groupId>com.hrocloud.company</groupId>
 			<artifactId>company-api</artifactId>
@@ -98,8 +103,13 @@
 			<artifactId>if-mybatis</artifactId>
 			<version>${hrocommon.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>com.hrocloud.tiangong</groupId>
+			<artifactId>filegw-api</artifactId>
+			<version>0.1.0-SNAPSHOT</version>
+		</dependency>
 
-	    <dependency>
+		<dependency>
 			<groupId>org.mybatis</groupId>
 			<artifactId>mybatis-spring</artifactId>
 			<version>${mybatis.spring.version}</version>

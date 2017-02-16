@@ -18,6 +18,9 @@ public class UserPermissionDetailDTO implements Serializable {
 
 	@Description("公司ID")
 	public int companyId;
+	
+	@Description("公司名称")
+	public String companyName;
 
 	@Description("岗位ID")
 	public int positionId;

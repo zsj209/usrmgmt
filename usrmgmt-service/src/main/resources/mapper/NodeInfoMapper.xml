@@ -29,7 +29,6 @@
     id, create_by, create_time, update_by, update_time, node_code, node_name, parent_id, 
     picture_code, method_name, type, memo,funstyle
   </sql>
-  
 	<select id="getNodeTree"  resultMap="BaseResultMap">
 		SELECT *,(case when subnums>0 and subvalidnums>0 and subnums-subvalidnums>0 then 'half'
 		when subnums>0 and subvalidnums>0 and subnums-subvalidnums=0 then 'all'

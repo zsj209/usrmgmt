@@ -8,7 +8,9 @@ import com.hrocloud.apigw.client.dubboext.DubboExtProperty;
 import com.hrocloud.common.api.CommParamInfoService;
 import com.hrocloud.common.exception.BusinessException;
 import com.hrocloud.common.page.PageParameter;
+import com.hrocloud.company.api.CompanyService;
 import com.hrocloud.company.api.PostService;
+import com.hrocloud.company.model.Company;
 import com.hrocloud.company.model.Post;
 import com.hrocloud.usrmgmt.api.NodeService;
 import com.hrocloud.usrmgmt.api.RoleService;
@@ -57,6 +59,9 @@ public class UserServiceImpl implements UserService {
     
     @Resource
     private CommParamInfoService commParamInfoService;
+    
+    @Resource
+	private CompanyService companyService;
 
     public UserInfo getUser(String loginCode) {
 
@@ -205,6 +210,11 @@ public class UserServiceImpl implements UserService {
 						}
 					} else {
 						addrole = false;
+					}
+					//获取公司名称
+					Company company = companyService.selectById(pos.getCompanyId());
+					if (company != null) {
+						uspmdt.companyName = company.getCompName();
 					}
 					if (addrole) {
 						// 有效的角色

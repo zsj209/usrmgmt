@@ -45,7 +45,7 @@ public interface NodeAgwService {
  	 * @return
 	 */
 	@HttpApi(name = "node.deletenode", desc = "删除节点信息", security = SecurityType.UserLogin)
-	@DesignedErrorCode({UserServiceHttpCode.C_NODE_DELINFO_ERROR})
+	@DesignedErrorCode({UserServiceHttpCode.C_NODE_DELINFO_ERROR,UserServiceHttpCode.C_NODE_ASSIGNED_ERROR})
 	boolean deleteNode(@ApiParameter(required = true, name = "ids", desc = "删除的节点id数组") String ids);
 	
 	/**

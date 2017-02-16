@@ -37,17 +37,12 @@ public class ButtonServiceImpl implements ButtonService {
 	}
 
 	public boolean deleteButton(String ids) {
-		try{
+		
 			ArrayList<String> list = new ArrayList<String>();
 			String idstr[] = ids.split(",");
 			Collections.addAll(list, idstr);
 			int deleteResult = buttonInfoMapper.deleteButton(list);
 			return true;
-		} catch (Exception e) {
-			//TODO
-			 DubboExtProperty.setErrorCode(UserServiceHttpCode.BUTTON_DELINFO_ERROR);
-		}
-		return false;
 	}
 
 	public boolean addOrModifyButton(int userId, String data) {
@@ -98,8 +93,8 @@ public class ButtonServiceImpl implements ButtonService {
 		return null;
 	}
 
-	public List<ButtonInfoAll> getButtonByNodeId(int nodeId) {
-		return buttonInfoMapper.getButtonByNodeId(nodeId);
+	public List<ButtonInfoAll> getButtonByNodeId(int nodeId,String roleId) {
+		return buttonInfoMapper.getButtonByNodeId(nodeId,roleId);
 	}
 
 

@@ -38,7 +38,7 @@ public interface ButtonAgwService {
  	 * @return
 	 */
 	@HttpApi(name = "button.deletebutton", desc = "删除按钮信息", security = SecurityType.UserLogin)
-	@DesignedErrorCode({UserServiceHttpCode.C_NODE_DELINFO_ERROR})
+	@DesignedErrorCode({UserServiceHttpCode.C_BUTTON_ASSIGNED_ERROR,UserServiceHttpCode.C_BUTTON_DELINFO_ERROR})
 	boolean deleteButton(@ApiParameter(required = true, name = "ids", desc = "删除的按钮id数组") String ids);
 	
 	/**
@@ -61,16 +61,16 @@ public interface ButtonAgwService {
 			@ApiParameter(required = true, name = "id", desc = "按钮id") int id);
 
 	/**
-	 * 根据节点id获取按钮信息
-	 * @param data 按钮信息的json字符串
-	 * @return 
+	 * 根据用户角色的节点权限获取按钮信息
+	 * @param nodeId
+	 * @param roleId
+	 * @return
 	 */
-	@HttpApi(name = "button.getbuttonbynodeid", desc = "根据节点id获取按钮信息", security = SecurityType.UserLogin)
+	@HttpApi(name = "button.getbuttonbynodeid", desc = "根据用户角色的节点权限获取按钮信息", security = SecurityType.UserLogin)
 	@DesignedErrorCode({UserServiceHttpCode.C_NODE_NONEXISTENT_ERROR})
 	List<ButtonDTO> getButtonByNodeId(
-			@ApiParameter(required = true, name = "nodeId", desc = "节点id") int nodeId);
-	
-	
+			@ApiParameter(required = true, name = "nodeId", desc = "节点id") int nodeId,
+			@ApiParameter(required = false, name = "roleId", desc = "角色id") String roleId);
 	
 	
 }
